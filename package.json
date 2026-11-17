@@ -1,0 +1,86 @@
+{
+  "name": "dsh-pcbagent",
+  "version": "0.1.0",
+  "description": "Schematic and PCB dual-view workbench with local Freerouting for DeepSeek Harness",
+  "type": "module",
+  "main": "./lib/index.js",
+  "license": "MIT AND BSD-3-Clause",
+  "author": "NiuVector",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NiuVector/dsh-pcbagent.git"
+  },
+  "homepage": "https://github.com/NiuVector/dsh-pcbagent#readme",
+  "bugs": {
+    "url": "https://github.com/NiuVector/dsh-pcbagent/issues"
+  },
+  "engines": {
+    "node": ">=24.9.0",
+    "dsh": "0.2.2-rc.1"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./typert": "./lib/typert.host.js",
+    "./remote": "./lib/typert.remote-client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "lib/*.js",
+    "lib/transport.cjs",
+    "backend/route_agent/**/*.py",
+    "licenses/",
+    "locale/",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/",
+    "scripts/Start.ps1"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-package.mjs"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "4.1.0",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.2-rc.1",
+    "@deepseek-ai/schemastery": "3.19.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-typert-protocol": {
+      "optional": true
+    },
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    }
+  }
+}

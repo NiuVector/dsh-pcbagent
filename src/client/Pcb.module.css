@@ -1,0 +1,58 @@
+.page { display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; overflow: hidden; container-type: inline-size; container-name: eda; color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-base); }
+.workbenchHeader { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: max(14px, var(--dsh-frame-top-clearance, 0px)) 20px 12px; flex-shrink: 0; }
+.titleGroup { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.titleGroup h1 { margin: 0; font-size: 18px; font-weight: 500; overflow-wrap: anywhere; }
+.projectContext { font-size: 12px; color: var(--dsw-alias-label-tertiary); }
+.headerActions, .commandActions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.headerActions { justify-content: flex-end; flex-shrink: 0; }
+.workspaceBar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 20px 12px; border-bottom: 0.5px solid var(--dsw-alias-border-l3); flex-shrink: 0; flex-wrap: wrap; }
+.runState { display: inline-flex; align-items: center; gap: 6px; color: var(--dsw-alias-label-secondary); font-size: 12px; margin-right: 4px; }
+.views { flex: 1; min-height: 0; display: grid; gap: 0.5px; background: var(--dsw-alias-border-l3); overflow: auto; }
+.dualViews { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); }
+.singleView { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.paneSlot { min-width: 0; min-height: 0; display: flex; }
+.paneSlot[hidden] { display: none; }
+.documentPane { display: flex; flex-direction: column; width: 100%; min-height: 0; min-width: 0; background: var(--dsw-alias-bg-base); }
+.paneHeader { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 42px; padding: 6px 12px; border-bottom: 0.5px solid var(--dsw-alias-border-l3); font-size: 12px; flex-shrink: 0; flex-wrap: wrap; }
+.paneIdentity { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.paneKind { font-weight: 500; white-space: nowrap; }
+.fileName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dsw-alias-label-tertiary); }
+.paneActions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.canvas { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; overflow: hidden; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-tertiary); }
+.viewerFrame { border: 0; width: 100%; height: 100%; display: block; }
+.viewerOverlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); font-size: 13px; text-align: center; overflow-wrap: anywhere; }
+.viewerPlaceholder { display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 28px; font-size: 13px; text-align: center; color: var(--dsw-alias-label-tertiary); max-width: 340px; }
+.emptyTitle { color: var(--dsw-alias-label-secondary); font-size: 16px; font-weight: 500; }
+.statusBar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 8px 16px; border-top: 0.5px solid var(--dsw-alias-border-l3); color: var(--dsw-alias-label-tertiary); font-size: 11px; flex-shrink: 0; }
+.notice { margin: 0; padding: 8px 20px; color: var(--dsw-alias-label-secondary); font-size: 13px; }
+.error { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px; border-bottom: 0.5px solid var(--dsw-alias-border-l3); gap: 12px; font-size: 13px; flex-shrink: 0; }
+.projectModal { width: min(600px, calc(100vw - 32px)); }
+.fileList { display: flex; flex-direction: column; gap: 4px; max-height: min(360px, 45dvh); overflow: auto; margin: 12px -4px 4px; padding: 4px; }
+.projectRow { width: 100%; min-height: 60px; height: auto; padding: 10px 12px; justify-content: flex-start; gap: 12px; text-align: left; }
+.projectRow > svg { flex-shrink: 0; color: var(--dsw-alias-label-secondary); }
+.projectRow > span:not(.fileKind) { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.projectRow strong { font-weight: 500; font-size: 13px; white-space: normal; overflow-wrap: anywhere; }
+.projectRow small { font-size: 11px; color: var(--dsw-alias-label-tertiary); white-space: normal; overflow-wrap: anywhere; }
+.fileKind { font-size: 11px; color: var(--dsw-alias-label-tertiary); flex-shrink: 0; }
+.catalogState { display: grid; place-items: center; min-height: 120px; padding: 20px; color: var(--dsw-alias-label-secondary); font-size: 13px; text-align: center; }
+.manualPaths { border-top: 0.5px solid var(--dsw-alias-border-l3); margin-top: 12px; padding-top: 12px; color: var(--dsw-alias-label-secondary); font-size: 12px; }
+.manualPaths summary { cursor: pointer; }
+.settingsFields { display: flex; flex-direction: column; gap: 12px; font-size: 13px; min-width: 0; }
+.manualPaths .settingsFields { padding-top: 16px; }
+.pathField { display: flex; gap: 8px; min-width: 0; }
+.pathField > input { min-width: 0; flex: 1; }
+.modalError { font-size: 12px; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.results { padding: 16px; min-width: 0; overflow: auto; font-size: 13px; }
+.results h2 { margin: 0 0 16px; font-size: 14px; font-weight: 500; }
+.results p { color: var(--dsw-alias-label-secondary); }
+.results dl { display: grid; gap: 12px; margin: 0; }
+.results dl > div { display: flex; gap: 16px; justify-content: space-between; }
+.results dt { color: var(--dsw-alias-label-secondary); }
+.results dd { margin: 0; }
+.results pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.6 var(--ds-font-family-code); max-height: 260px; overflow: auto; }
+.results details { margin-top: 16px; }
+.path { overflow-wrap: anywhere; }
+@container eda (max-width: 850px) { .dualViews { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(2, minmax(260px, 1fr)); } }
+@media (max-width: 640px) { .workbenchHeader { padding-left: 12px; padding-right: 12px; flex-wrap: wrap; gap: 10px; } .titleGroup { flex: 1; } .workspaceBar { padding: 6px 12px 10px; } .commandActions { width: 100%; justify-content: flex-end; } .runState { margin-right: auto; } .paneHeader { padding: 4px 8px; } .statusBar { font-size: 11px; } }
+@media (pointer: coarse) { .settingsFields input, .projectModal input { font-size: 16px; } }

@@ -1,0 +1,15 @@
+node_modules/
+*.tsbuildinfo
+*.tgz
+*.zip
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv*/
+runtime/
+workspace/
+validation-local/
+scripts/.build-config.mts
+lib/*.map

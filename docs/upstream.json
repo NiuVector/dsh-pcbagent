@@ -1,0 +1,12 @@
+{
+  "dsh": {
+    "repository": "https://github.com/deepseek-ai/deepseek-harness",
+    "commit": "fcc0ad462172522aaf5c93a7b2e01f6b9f0b0159",
+    "version": "0.2.2-rc.1"
+  },
+  "kicanvas": {
+    "repository": "https://github.com/theacodes/kicanvas",
+    "commit": "b031159eb74aaa7eef2b026fd85d35bc05ff2095"
+  },
+  "backend": "PCBRouteAgent_DSH_Reliability_Source_20261111 plus local Freerouting/dual-view changes"
+}

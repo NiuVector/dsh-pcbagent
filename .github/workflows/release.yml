@@ -1,0 +1,31 @@
+name: Attach installable release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run check
+      - run: python -m unittest discover -s tests -v
+        working-directory: backend
+      - run: npm pack --ignore-scripts
+      - name: Attach package and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          sha256sum dsh-pcbagent-*.tgz > SHA256SUMS
+          gh release upload "$RELEASE_TAG" dsh-pcbagent-*.tgz SHA256SUMS

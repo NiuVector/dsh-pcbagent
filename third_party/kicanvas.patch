@@ -1,0 +1,174 @@
+diff --git a/src/base/local-storage.ts b/src/base/local-storage.ts
+index a5caf79..388459b 100644
+--- a/src/base/local-storage.ts
++++ b/src/base/local-storage.ts
+@@ -7,6 +7,16 @@
+ type Reviver = (this: any, key: string, value: any) => any;
+ 
+ export class LocalStorage {
++    #memory = new Map<string, string>();
++
++    #storage(): Storage | null {
++        try {
++            return window.localStorage;
++        } catch {
++            // An opaque-origin embedded viewer keeps preferences only for its lifetime.
++            return null;
++        }
++    }
+     constructor(
+         public readonly prefix: string = "kc",
+         public readonly reviver?: Reviver,
+@@ -17,7 +27,12 @@ export class LocalStorage {
+     }
+ 
+     set(key: string, val: unknown, exp?: Date) {
+-        window.localStorage.setItem(
++        const storage = this.#storage();
++        if (!storage) {
++            this.#memory.set(this.key_for(key), JSON.stringify({ val, exp }));
++            return;
++        }
++        storage.setItem(
+             this.key_for(key),
+             JSON.stringify({
+                 val: val,
+@@ -28,7 +43,8 @@ export class LocalStorage {
+ 
+     get<T>(key: string, fallback: T): T;
+     get(key: string, fallback?: unknown): unknown {
+-        const item_data = window.localStorage.getItem(this.key_for(key));
++        const storage = this.#storage();
++        const item_data = storage ? storage.getItem(this.key_for(key)) : this.#memory.get(this.key_for(key)) ?? null;
+ 
+         if (item_data === null) {
+             return fallback;
+@@ -45,6 +61,8 @@ export class LocalStorage {
+     }
+ 
+     delete(key: string) {
+-        window.localStorage.removeItem(this.key_for(key));
++        const storage = this.#storage();
++        if (storage) storage.removeItem(this.key_for(key));
++        else this.#memory.delete(this.key_for(key));
+     }
+ }
+diff --git a/src/kc-ui/kc-ui.css b/src/kc-ui/kc-ui.css
+index 69d9fb0..46d991f 100644
+--- a/src/kc-ui/kc-ui.css
++++ b/src/kc-ui/kc-ui.css
+@@ -315,3 +315,14 @@ textarea {
+     text-align: left;
+     padding: 0.5em;
+ }
++
++/* Local CAD workbench uses neutral chrome while preserving KiCad layer colors. */
++:host {
++    --gradient-purple-green-light: #25292f;
++    --gradient-purple-blue-medium: #20242a;
++    --gradient-purple-blue-dark: #181b20;
++    --gradient-purple-green-highlight: #343a42;
++    --gradient-cyan-blue-light: #293945;
++    --gradient-purple-red: #30353d;
++    --gradient-purple-red-highlight: #444b55;
++}
+diff --git a/src/kicanvas/elements/common/app.ts b/src/kicanvas/elements/common/app.ts
+index eee6fa0..bbe4d47 100644
+--- a/src/kicanvas/elements/common/app.ts
++++ b/src/kicanvas/elements/common/app.ts
+@@ -177,7 +177,12 @@ export abstract class KCViewerAppElement<
+                 button-location="bottom">
+                 <kc-help-panel></kc-help-panel>
+             </kc-ui-activity>`,
+-        ];
++        ].filter(activity => {
++            if (!(activity instanceof HTMLElement)) return true;
++            const name = activity.getAttribute('name');
++            return !(name === 'Preferences' && this.controlslist?.includes('nopreferences'))
++                && !(name === 'Help' && this.controlslist?.includes('nohelp'));
++        });
+     }
+ 
+     protected abstract make_activities(): ElementOrFragment[];
+@@ -250,7 +255,7 @@ export abstract class KCViewerAppElement<
+         </kc-ui-floating-toolbar>`;
+ 
+         let bottom_toolbar = null;
+-        if (controls != "none") {
++        if (controls != "none" && !this.controlslist?.includes('nobottomtoolbar')) {
+             bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
+         }
+ 
+diff --git a/src/kicanvas/elements/kicanvas-embed.ts b/src/kicanvas/elements/kicanvas-embed.ts
+index c21bc7c..e2a198c 100644
+--- a/src/kicanvas/elements/kicanvas-embed.ts
++++ b/src/kicanvas/elements/kicanvas-embed.ts
+@@ -162,6 +162,7 @@ class KiCanvasEmbedElement extends KCUIElement {
+     async #setup_project(vfs: IFileSystem) {
+         this.loaded = false;
+         this.loading = true;
++        this.dispatchEvent(new CustomEvent("kicanvas:loadstart"));
+ 
+         try {
+             await vfs.setup();
+@@ -171,6 +172,11 @@ class KiCanvasEmbedElement extends KCUIElement {
+             await this.update();
+ 
+             this.#project.set_active_page(this.#project.root_schematic_page!);
++            this.dispatchEvent(new CustomEvent("kicanvas:load"));
++        } catch (error) {
++            this.dispatchEvent(new CustomEvent("kicanvas:error", {
++                detail: { message: error instanceof Error ? error.message : String(error) },
++            }));
+         } finally {
+             this.loading = false;
+         }
+diff --git a/src/viewers/board/viewer.ts b/src/viewers/board/viewer.ts
+index 43cbe73..db96c56 100644
+--- a/src/viewers/board/viewer.ts
++++ b/src/viewers/board/viewer.ts
+@@ -154,7 +154,22 @@ export class BoardViewer extends DocumentViewer<
+ 
+     zoom_to_board() {
+         const edge_cuts = this.layers.by_name(LayerNames.edge_cuts)!;
+-        const board_bbox = edge_cuts.bbox;
+-        this.viewport.camera.bbox = board_bbox.grow(board_bbox.w * 0.1);
++        const edge_bbox = edge_cuts.bbox;
++        const board_bbox = edge_bbox.valid ? edge_bbox : BBox.combine(
++            [...this.layers.in_order()]
++                .filter(layer => layer.visible && layer.name !== LayerNames.drawing_sheet && layer.name !== LayerNames.grid)
++                .map(layer => layer.bbox),
++        );
++        if (!board_bbox.valid) {
++            super.zoom_to_page();
++            return;
++        }
++        this.viewport.camera.bbox = board_bbox.grow(Math.max(board_bbox.w, board_bbox.h) * 0.08 + 1);
++        this.layers.by_name(LayerNames.drawing_sheet)!.visible = false;
++        this.draw();
++    }
++
++    override zoom_to_page() {
++        this.zoom_to_board();
+     }
+ }
+diff --git a/src/viewers/schematic/viewer.ts b/src/viewers/schematic/viewer.ts
+index 4a37eb6..b548a9c 100644
+--- a/src/viewers/schematic/viewer.ts
++++ b/src/viewers/schematic/viewer.ts
+@@ -26,6 +26,15 @@ export class SchematicViewer extends DocumentViewer<
+     LayerSet,
+     SchematicTheme
+ > {
++    override zoom_to_page() {
++        const box = BBox.combine([...this.layers.in_order()]
++            .filter(layer => layer.visible && layer.name !== ':DrawingSheet' && layer.name !== ':Grid')
++            .map(layer => layer.bbox));
++        if (!box.valid) { super.zoom_to_page(); return; }
++        this.layers.by_name(':DrawingSheet')!.visible = false;
++        this.viewport.camera.bbox = box.grow(Math.max(box.w, box.h) * 0.06 + 2);
++        this.draw();
++    }
+     get schematic(): KicadSch {
+         return this.document;
+     }

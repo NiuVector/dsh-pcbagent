@@ -1,0 +1,6 @@
+- insert:
+    - id: pcbagent
+      name: dsh-pcbagent
+      config:
+        pythonExecutable: !!js process.env.PCBROUTE_PYTHON
+        allowedRoots: !!js "process.env.PCBROUTE_ALLOWED_ROOTS ? JSON.parse(process.env.PCBROUTE_ALLOWED_ROOTS) : []"

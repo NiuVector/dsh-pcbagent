@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.jpg binary
+third_party/*.patch -whitespace
+licenses/* -whitespace
